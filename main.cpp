@@ -7,7 +7,7 @@
 #include <Eigen/Dense>
 using namespace cimg_library;
 using namespace std;
-
+using namespace Eigen;
 
 int main(int argc, char * argv[]) {
 
@@ -17,17 +17,33 @@ int main(int argc, char * argv[]) {
     int output_width = atoi(argv[4]); //storing output image width    
     int output_height = atoi(argv[5]); //Storing output image height
 
-    CImg < double > input(argv[1]); //Stub code for converting input image to LAB color
-    CImg < double > lab = input.RGBtoLab();
+    CImg <double> input(argv[1]); //Stub code for converting input image to LAB color
+    CImg < double > lab1 = input.RGBtoLab();
     Vector3d *image = new Vector3d[input.width() * input.height()];
     for (unsigned int i = 0; i < input.width(); i++) {
         for (unsigned int j = 0; j < input.height(); j++) {
-            image[i * input.height() + j][0] = lab(i, j, 0);
-            image[i * input.height() + j][1] = lab(i, j, 1);
-            image[i * input.height() + j][2] = lab(i, j, 2);
+            image[i * input.height() + j][0] = lab1(i, j, 0);
+            image[i * input.height() + j][1] = lab1(i, j, 1);
+            image[i * input.height() + j][2] = lab1(i, j, 2);
         }
     }
 
+    CImg < double > input2(argv[2]); //Stub code for converting input image2 to LAB color
+    CImg < double > lab2 = input2.RGBtoLab();
+    Vector3d *image2 = new Vector3d[input2.width() * input2.height()];
+    for (unsigned int i = 0; i < input2.width(); i++) {
+        for (unsigned int j = 0; j < input2.height(); j++) {
+            image2[i * input2.height() + j][0] = lab2(i, j, 0);
+            image2[i * input2.height() + j][1] = lab2(i, j, 1);
+            image2[i * input2.height() + j][2] = lab2(i, j, 2);
+        }
+
+    }
+
+
+
+
+/*
 //Code is from here
 
 
@@ -65,68 +81,7 @@ for ()
   reaplce seam1 with image
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CImg < double > input(argv[2]); //Stub code for converting input image2 to LAB color
-    CImg < double > lab = input.RGBtoLab();
-    Vector3d *image2 = new Vector3d[input.width() * input.height()];
-    for (unsigned int i = 0; i < input.width(); i++) {
-        for (unsigned int j = 0; j < input.height(); j++) {
-            image2[i * input.height() + j][0] = lab(i, j, 0);
-            image2[i * input.height() + j][1] = lab(i, j, 1);
-            image2[i * input.height() + j][2] = lab(i, j, 2);
-        }
-    }
-
-    
-    int width = input.width();
-    int height = input.height();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    for (; width > output_width; width--) {
-        image = delseam(image, width, input.height());
-    }
-
-
-
-
-
+*/
 
   CImg<double> output(atoi(argv[4]), atoi(argv[5]), input.depth(), input.spectrum(), 0); 
   for (unsigned int i=0; i<output.width(); i++) {
