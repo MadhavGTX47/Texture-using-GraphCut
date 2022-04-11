@@ -1,9 +1,9 @@
-make: main.o 
-	g++ main.o -o main
+cut: main.o 
+	g++ main.o -o graph_cut
+	graph_cut input.png output.png 512x512
 
 main.o : main.cpp 
-	g++ -I/usr/include/eigen3/ -O3 -c main.cpp 
-
+	g++ -O3 -c main.cpp
 
 clean:
 	rm *.o *.ppm *.exe output out
