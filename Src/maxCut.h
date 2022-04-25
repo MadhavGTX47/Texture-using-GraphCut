@@ -2,16 +2,130 @@
 #include <cmath>
 #include <complex>
 #include <vector>
+#include <queue>
+#include <memory>
+#include <utility>
+#include <random>
 #include <iostream>
 #include <fstream>
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image.h"
 #include "stb_image_write.h"
 
-#include "graph.hpp"
+
 
 using namespace std;
 
 #pragma pack()
+
+int Random(int min, int max)
+{
+    return min + ( std::rand() % ( max - min + 1 ) );
+}
+
+
+struct Edge {
+    int v, next, capacity;
+};
+
+
+class Graph {
+private:
+    vector<int> depth;
+
+    bool bfs(int s, int t) {
+        fill(depth.begin(), depth.end(), 0);
+        depth[s] = 1;
+        queue<int> queue;
+        queue.push(s);
+
+        int count = 0;
+        while (not queue.empty()) {
+            ++ count;
+            int u = queue.front();
+            queue.pop();
+            for (int i = head[u]; i != -1; i = edges[i].next) {
+                if (not depth[edges[i].v] and edges[i].capacity) {
+                    depth[edges[i].v] = depth[u] + 1;
+                    queue.push(edges[i].v);
+                }
+            }
+        }
+        return depth[t] > 0;
+    }
+
+    int flow_calc(int u, int t, int capacity) {
+        if (u == t or capacity == 0) {
+            return capacity;
+        }
+
+        int flow, total_flow = 0;
+        for (int i = head[u]; i != -1 and capacity > 0; i = edges[i].next) {
+            if (depth[edges[i].v] == depth[u] + 1 and
+                (flow = flow_calc(edges[i].v, t, min(capacity, edges[i].capacity))) > 0) {
+                edges[i].capacity -= flow;
+                edges[i ^ 1].capacity += flow;
+                total_flow += flow;
+                capacity -= flow;
+            }
+        }
+        if (not total_flow) {
+            depth[u] = 0;
+        }
+        return total_flow;
+    }
+
+
+    vector<bool> cut(int s) const {
+        vector<bool> visited(head.size(), false);
+        vector<bool> cut(head.size(), true);
+        queue<int> queue;
+
+        queue.push(s);
+        visited[s] = true;
+
+        while (not queue.empty()) {
+            int u = queue.front();
+            queue.pop();
+            cut[u] = false;
+            for (int i = head[u]; i != -1; i = edges[i].next) {
+                if (not visited[edges[i].v] and edges[i].capacity) {
+                    visited[edges[i].v] = true;
+                    queue.push(edges[i].v);
+                }
+            }
+        }
+        return cut;
+    }
+
+public:
+    vector<int> head;
+    vector<Edge> edges;
+
+    static constexpr int inf_flow = 1 << 20;
+
+    explicit Graph(int n): head(n, -1), depth(n) {}
+
+    void add_edge(int u, int v, int w) {
+        edges.push_back(Edge{v, head[u], w});
+        head[u] = edges.size() - 1;
+        edges.push_back(Edge{u, head[v], w});
+        head[v] = edges.size() - 1;
+    }
+
+     vector<bool> min_cut(int s, int t) {
+        
+        while (bfs(s, t)) {
+            while (flow_calc(s, t, inf_flow));
+        }
+        return cut(s);
+    }
+};
+
+
+
+
 struct Pixel {
     uint8_t r, g, b;
 
@@ -380,13 +494,7 @@ void applyseg(const shared_ptr<Patch> &patch) {
                 }
             }
         }
-        // cout << " > " << overlapped.size() << " overlapped pixels" << endl;
-        
-        // Min-cut and overwrite
-        // cout << " > Running min-cut algorithm ... " << endl;
-       
-      
-        
+         
         auto decisions = graph.min_cut(s, t);
         
 ofstream dump("mincut.txt"); 
