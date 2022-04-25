@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     canvas2->write(s);
 
     string s2="Overlapped.png";
-    cout << "Writing result OVerlapped image"<<endl;
+    cout << "Writing result Overlapped image"<<endl;
     canvas3->write(s2);
 
 
