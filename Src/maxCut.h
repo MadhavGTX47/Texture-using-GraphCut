@@ -25,16 +25,16 @@ int Random(int min, int max)
 }
 
 
-struct Edge {
+struct Edge {                           // Basic struct for storing Edges
     int v, next, capacity;
 };
 
 
-class Graph {
+class Graph {                            // Graph Class
 private:
     vector<int> depth;
 
-    bool bfs(int s, int t) {
+    bool bfs(int s, int t) {            // First step of Dinic using Dfs to construct level Graph
         fill(depth.begin(), depth.end(), 0);
         depth[s] = 1;
         queue<int> queue;
@@ -55,7 +55,7 @@ private:
         return depth[t] > 0;
     }
 
-    int flow_calc(int u, int t, int capacity) {
+    int dinic(int u, int t, int capacity) { // Checking flow is possible or not and sending mulptiple flow
         if (u == t or capacity == 0) {
             return capacity;
         }
@@ -63,7 +63,7 @@ private:
         int flow, total_flow = 0;
         for (int i = head[u]; i != -1 and capacity > 0; i = edges[i].next) {
             if (depth[edges[i].v] == depth[u] + 1 and
-                (flow = flow_calc(edges[i].v, t, min(capacity, edges[i].capacity))) > 0) {
+                (flow = dinic(edges[i].v, t, min(capacity, edges[i].capacity))) > 0) {
                 edges[i].capacity -= flow;
                 edges[i ^ 1].capacity += flow;
                 total_flow += flow;
@@ -77,7 +77,7 @@ private:
     }
 
 
-    vector<bool> cut(int s) const {
+    vector<bool> cut(int s) const {         // Finding the Nodes where cut lies and sending  stroing in queue
         vector<bool> visited(head.size(), false);
         vector<bool> cut(head.size(), true);
         queue<int> queue;
@@ -103,21 +103,21 @@ public:
     vector<int> head;
     vector<Edge> edges;
 
-    static constexpr int inf_flow = 1 << 20;
+    static constexpr int inf_flow = 1 << 20;    
 
     explicit Graph(int n): head(n, -1), depth(n) {}
 
-    void add_edge(int u, int v, int w) {
+    void add_edge(int u, int v, int w) {                // To add Edges to graph
         edges.push_back(Edge{v, head[u], w});
         head[u] = edges.size() - 1;
         edges.push_back(Edge{u, head[v], w});
         head[v] = edges.size() - 1;
     }
 
-     vector<bool> min_cut(int s, int t) {
+     vector<bool> min_cut(int s, int t) {               //Calling Dininc 
         
-        while (bfs(s, t)) {
-            while (flow_calc(s, t, inf_flow));
+        while (bfs(s, t)) { 
+            while (dinic(s, t, inf_flow));              // Finding the cut
         }
         return cut(s);
     }
@@ -126,18 +126,13 @@ public:
 
 
 
-struct Pixel {
+struct Pixel {                                          // Structure to Store Pixel based on reference 7
     uint8_t r, g, b;
 
     Pixel(uint8_t r, uint8_t g, uint8_t b): r(r), g(g), b(b) {}
 
-   inline uint64_t sqr_sum() const {
-        uint64_t u_r = r, u_g = g, u_b = b;
-        return u_r * u_r + u_g * u_g + u_b * u_b;
-    }
-
-   int distance(const Pixel &pixel) const {
-        int r_d = static_cast<int> (r) - pixel.r;
+   int distance(const Pixel &pixel) const {             // Distance functions for calcualtiong cost
+        int r_d = static_cast<int> (r) - pixel.r;   
         int g_d = static_cast<int> (g) - pixel.g;
         int b_d = static_cast<int> (b) - pixel.b;
         return sqrt(r_d * r_d + g_d * g_d + b_d * b_d);
@@ -153,18 +148,18 @@ struct Pixel {
 
 
 
-class Image {
+class Image {                                   // parent Image Class for laoding and outputing image using stbi library, used from example snippit
 private:
     bool from_stbi;
 
 public:
     int w = 0, h = 0;
-    Pixel *data = nullptr;
+    Pixel *data = nullptr;                                              
 
     explicit Image(const string &path) {
         from_stbi = true;
         int c;
-        data = reinterpret_cast<Pixel*> (stbi_load(path.c_str(), &w, &h, &c, 3));
+        data = reinterpret_cast<Pixel*> (stbi_load(path.c_str(), &w, &h, &c, 3));   
         if (not data) {
             cerr << "Unable to load image from " << path << endl;
             exit(EXIT_FAILURE);
@@ -183,23 +178,6 @@ public:
         }
     }
 
-     uint64_t variance() const {
-        uint64_t r = 0, g = 0, b = 0;
-        for (int i = 0; i < w * h; ++ i) {
-            r += data[i].r, g += data[i].g, b += data[i].b;
-        }
-        r /= w * h, g /= w * h, b /= w * h;
-        uint64_t var = 0;
-        auto sqr = [](uint64_t x) {
-            return x * x;
-        };
-        for (int i = 0; i < w * h; ++ i) {
-            var += sqr(max<uint64_t>(r, data[i].r) - min<uint64_t>(r, data[i].r));
-            var += sqr(max<uint64_t>(g, data[i].g) - min<uint64_t>(g, data[i].g));
-            var += sqr(max<uint64_t>(b, data[i].b) - min<uint64_t>(b, data[i].b));
-        }
-        return var / (w * h);
-    }
 
     void write(const string &path) const {
        
@@ -217,19 +195,10 @@ public:
         return data[y * w + x];
     }
 
-    shared_ptr<Image> flip() const {
-        auto flipped = make_shared<Image>(w, h);
-        for (int y = 0, index = 0; y < h; ++ y) {
-            for (int x = 0; x < w; ++ x, ++ index) {
-                flipped->set(w - x - 1, h - y - 1, data[index]);
-            }
-        }
-        return flipped;
-    }
 };
 
 
-class Patch {
+class Patch {           // Class to stroe Patch along with few functons it needs
 public:
     int x, y;
     shared_ptr<Image> image;
@@ -254,7 +223,7 @@ public:
 };
 
 
-class Canvas: public Image {
+class Canvas: public Image {    // Class for Canvas 
 private:
     vector<shared_ptr<Patch>> origin;
 
@@ -274,31 +243,7 @@ public:
         return 0 <= x and x < w and 0 <= y and y < h;
     }
 
-     uint64_t ssd(const shared_ptr<Patch> &patch, int canvas_x=-1, int canvas_y=-1, int sub_patch_w=-1, int sub_patch_h=-1) const {
-        int x_begin = max(patch->x, 0);
-        int y_begin = max(patch->y, 0);
-        int x_end = min(patch->x_end(), w);
-        int y_end = min(patch->y_end(), h);
-        if (canvas_x != -1 and canvas_y != -1 and sub_patch_w != -1 and sub_patch_h != -1) {
-            x_begin = canvas_x, y_begin = canvas_y;
-            x_end = min(x_end, x_begin + sub_patch_w), y_end = min(y_end, y_begin + sub_patch_h);
-        }
-
-        int overlapped = 0;
-        uint64_t ssd = 0;
-        for (int y = y_begin; y < y_end; ++ y) {
-            for (int x = x_begin; x < x_end; ++ x) {
-                int index = y * w + x;
-                if (origin[index]) {
-                    ssd += data[index].sqr_distance(patch->pixel(x, y));
-                    ++ overlapped;
-                }
-            }
-        }
-        return ssd / overlapped;
-    }
-
-    void apply(const shared_ptr<Patch> &patch) {
+    void apply(const shared_ptr<Patch> &patch) {                    //Code to apply the patch
         cout << " > Applying a new patch at (" << patch->x << ", " << patch->y << ")" << endl;
         int x_begin = max(patch->x, 0);
         int y_begin = max(patch->y, 0);
@@ -337,8 +282,8 @@ public:
             }
         }
 
-        // Build graph
-        Graph graph(overlapped.size() + n_old_seam_nodes + 2);
+     
+        Graph graph(overlapped.size() + n_old_seam_nodes + 2);      // Constructing the Graph
         int s = overlapped.size() + n_old_seam_nodes, t = overlapped.size() + n_old_seam_nodes + 1;
         int old_sean_node_index = overlapped.size();
         for (int i = 0; i < overlapped.size(); ++ i) {
@@ -362,7 +307,7 @@ public:
                             graph.add_edge(s, i, Graph::inf_flow);
                         } 
                         
-                        else if (d < 2) { // `add_edge` is bi-directional
+                        else if (d < 2) { 
                             
                             if (origin[index] != origin[neighbor_index] and origin[index]->in_range(a, b) and
                                 origin[neighbor_index]->in_range(a, b)) { // Old seam node
@@ -387,7 +332,7 @@ public:
         
       
         
-        auto decisions = graph.min_cut(s, t);
+        auto decisions = graph.min_cut(s, t);   // Finding the Cuts
         
 
         for (int i = 0; i < overlapped.size(); ++ i) {
@@ -408,7 +353,7 @@ public:
 
     }
 
-void applyseg(const shared_ptr<Patch> &patch) {
+void applyseg(const shared_ptr<Patch> &patch) { // For Intermidiate output
         cout << " > Applying a new patch at (" << patch->x << ", " << patch->y << ")" << endl;
         int x_begin = max(patch->x, 0);
         int y_begin = max(patch->y, 0);
@@ -530,7 +475,7 @@ dump.close();
    
    
    
-void applyover(const shared_ptr<Patch> &patch) {
+void applyover(const shared_ptr<Patch> &patch) { // For Intermidiate output
         cout << " > Applying a new patch at (" << patch->x << ", " << patch->y << ")" << endl;
         int x_begin = max(patch->x, 0);
         int y_begin = max(patch->y, 0);
@@ -569,7 +514,6 @@ void applyover(const shared_ptr<Patch> &patch) {
             }
         }
 
-        // Build graph
         Graph graph(overlapped.size() + n_old_seam_nodes + 2);
         int s = overlapped.size() + n_old_seam_nodes, t = overlapped.size() + n_old_seam_nodes + 1;
         int old_sean_node_index = overlapped.size();
