@@ -3,6 +3,5 @@
 *.vscode
 *.d
 *.ppm
-*.png
 hide
-shade
+
