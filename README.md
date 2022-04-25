@@ -30,16 +30,16 @@ make cleanl
 #### Understanding the output:
 - The Output will be generated in this folder after running the commands above.
 - There will be 6 Output files which are:-
--- ` output.png` :- The main output image generated.
--- `Overlapped.png` :- This image shows the overlapped portion for two consecutive patches which are pasted in the output canvas with the random method, which is the default method used in this (for more info on the random method please check the paper on this project was based on).
--- `Segment.png` :- It shows us the min-cut of the overlapped region (including the patch which needs to be taken from the source).
--- `output.png` :- The main output image generated.
--- `Graph.txt` :- Here we print 3 Values of the graph generated for the overlapped region seen in `Overlapped.png` which are the first vertex and the 2nd vertex the value, here this second value can be -1 to signify that we cannot traverse further (things further don't include in our min-cut) and the edge weight which is the capacity between the two vertexes.
--- `mincut.txt` :- Prints the coordinates of the mincut.
+* ` output.png` :- The main output image generated.
+* `Overlapped.png` :- This image shows the overlapped portion for two consecutive patches which are pasted in the output canvas with the random method, which is the default method used in this (for more info on the random method please check the paper on this project was based on).
+* `Segment.png` :- It shows us the min-cut of the overlapped region (including the patch which needs to be taken from the source).
+* `output.png` :- The main output image generated.
+* `Graph.txt` :- Here we print 3 Values of the graph generated for the overlapped region seen in `Overlapped.png` which are the first vertex and the 2nd vertex the value, here this second value can be -1 to signify that we cannot traverse further (things further don't include in our min-cut) and the edge weight which is the capacity between the two vertexes.
+* `mincut.txt` :- Prints the coordinates of the mincut.
 
 #### Extra Credit:
 
--- Implemented Dinic’s algorithm for Maximum Flow instead of Edmond Karp.
+- Implemented Dinic’s algorithm for Maximum Flow instead of Edmond Karp.
 
 
 #### References:
